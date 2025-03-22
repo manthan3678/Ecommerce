@@ -2,6 +2,17 @@ import slugify from "slugify";
 import productModel from "../model/productModel.js";
 import categoryModel from "../model/categoryModel.js";
 import fs from "fs";
+import dotenv from "dotenv";
+dotenv.config();
+// payment
+import braintree from "braintree";
+const gateway = new braintree.BraintreeGateway({
+  environment: braintree.Environment.Sandbox,
+  merchantId: process.env.MERCHANT_ID,
+  publicKey: process.env.BRAINTREE_PUBLIC_KEY,
+  privateKey: process.env.PRIVATE_KEY,
+});
+//
 //create product
 export const createProductController = async (req, res) => {
   try {
@@ -324,5 +335,32 @@ export const productCategoryController = async (req, res) => {
       message: "error in product category controller",
       error,
     });
+  }
+};
+
+// !!!!!!!!!! PAYMENT SECTION !!!!!!!!!!!!!
+// token
+export const braintreeTokenController = async (req, res) => {
+  try {
+    gateway.clientToken.generate({}, function (err, response) {
+      if (err) {
+        return res.status(500).send({
+          message: "error in gateway token",
+          err,
+        });
+      } else {
+        return res.send(response);
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+// payment
+export const paymentController = async (req, res) => {
+  try {
+    const { cart, nonce } = req.body;
+  } catch (error) {
+    console.log(error);
   }
 };

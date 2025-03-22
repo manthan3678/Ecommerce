@@ -2,11 +2,13 @@ import express from "express";
 const router = express.Router();
 import { requireSignIn, isAdmin } from "../middleware/authMiddleware.js";
 import {
+  braintreeTokenController,
   createProductController,
   deleteProductController,
   filterController,
   getProductController,
   getSingleProductController,
+  paymentController,
   productCategoryController,
   productCountContoller,
   productListController,
@@ -55,4 +57,11 @@ router.get("/search/:keyword", searchController);
 router.get("/related-product/:pid/:cid", relatedProductController);
 // category wise product
 router.get("/product-category/:slug", productCategoryController);
+
+//
+// PAYMENT ROUTES
+// token vaha se milega
+router.get("/braintree/token", braintreeTokenController);
+//payment
+router.post("braintree/payment", requireSignIn, paymentController);
 export default router;
