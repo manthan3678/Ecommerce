@@ -1,12 +1,17 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import Layout from "../Components/Layout/Layout";
 import { useCart } from "../context/Cart";
 import { useAuth } from "../context/auth";
 import { useNavigate } from "react-router-dom";
+import DropIn from "braintree-web-drop-in-react";
 import toast from "react-hot-toast";
+import axios from "axios";
 const CartPage = () => {
   const [auth, setAuth] = useAuth();
   const [cart, setCart] = useCart();
+  const [clienttoken, setClientToken] = useState("");
+  const [instance, setInstance] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   // total price
   const totalPrice = () => {
@@ -37,6 +42,26 @@ const CartPage = () => {
       console.log(error);
     }
   };
+  // new
+  // payment gateway
+  const getToken = async () => {
+    try {
+      const { data } = await axios.get(
+        `http://localhost:8080/api/v1/product/braintree/token`
+      );
+      setClientToken(data?.clientToken);
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getToken();
+    // console.log(clienttoken);
+  }, [auth?.token]);
+
+  const handlePayment = () => {};
   return (
     <Layout>
       <div className="container my-3">
@@ -128,6 +153,39 @@ const CartPage = () => {
                 </div>
               </>
             )}
+            <div className="my-3">
+              {(() => {
+                try {
+                  return (
+                    <DropIn
+                      options={{
+                        authorization: clienttoken,
+                        paypal: { flow: "vault" },
+                      }}
+                      onInstance={(instance) => setInstance(instance)}
+                    />
+                  );
+                } catch (error) {
+                  console.error("Error Rendering DropIn:", error);
+                  return <p>Error loading payment gateway.</p>;
+                }
+              })()}
+            </div>
+            {/* <div className="my-2">
+              {clienttoken}
+              <DropIn
+                options={{
+                  authorization: clienttoken,
+                  paypal: {
+                    flow: "vault",
+                  },
+                }}
+                onInstance={(instance) => setInstance(instance)}
+              />
+              <button className="btn btn-success" onClick={handlePayment}>
+                Make--Payment
+              </button>
+            </div> */}
           </div>
         </div>
       </div>

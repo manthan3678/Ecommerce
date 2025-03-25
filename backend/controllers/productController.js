@@ -1,6 +1,7 @@
 import slugify from "slugify";
 import productModel from "../model/productModel.js";
 import categoryModel from "../model/categoryModel.js";
+import orderModel from "../model/usermodel.js";
 import fs from "fs";
 import dotenv from "dotenv";
 dotenv.config();
@@ -360,6 +361,34 @@ export const braintreeTokenController = async (req, res) => {
 export const paymentController = async (req, res) => {
   try {
     const { cart, nonce } = req.body;
+    let total = 0;
+
+    cart.map((i) => {
+      total += i.price;
+    });
+    let newTransaction = gateway.transaction.sale(
+      {
+        amount: total,
+        paymentMethodNonce: nonce,
+        options: {
+          submitForSettlement: true,
+        },
+      },
+      function (error, result) {
+        if (result) {
+          const order = new orderModel({
+            products: cart,
+            payment: result,
+            buyer: req.user._id,
+          }).save();
+          return res.json({ ok: true });
+        } else {
+          return res
+            .status(500)
+            .send({ message: "Error on Brantree payment controlletr", error });
+        }
+      }
+    );
   } catch (error) {
     console.log(error);
   }
