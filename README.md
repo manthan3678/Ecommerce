@@ -1,4 +1,4 @@
-# ongoing APPLICATION
+
 # E-commerce Application (MERN Stack)
 
 ## Overview
