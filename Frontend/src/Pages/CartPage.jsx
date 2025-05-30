@@ -154,22 +154,26 @@ const CartPage = () => {
               </>
             )}
             <div className="my-3">
-              {(() => {
-                try {
-                  return (
-                    <DropIn
-                      options={{
-                        authorization: clienttoken,
-                        paypal: { flow: "vault" },
-                      }}
-                      onInstance={(instance) => setInstance(instance)}
-                    />
-                  );
-                } catch (error) {
-                  console.error("Error Rendering DropIn:", error);
-                  return <p>Error loading payment gateway.</p>;
-                }
-              })()}
+              {clienttoken ? (
+                <div>
+                  <DropIn
+                    options={{
+                      authorization: clienttoken,
+                      paypal: {
+                        flow: "vault",
+                      },
+                    }}
+                    onInstance={(instance) => setInstance(instance)}
+                  />
+                  <button className="btn btn-success" onClick={handlePayment}>
+                    Make--Payment
+                  </button>{" "}
+                </div>
+              ) : (
+                <>
+                  <p>Payment GateWay Is Loading</p>
+                </>
+              )}
             </div>
             {/* <div className="my-2">
               {clienttoken}
